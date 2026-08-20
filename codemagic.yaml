@@ -1,1 +1,32 @@
+workflows:
+  moonzer-ios-test:
+    name: Moonzer Student iOS - Compile Test
+    max_build_duration: 60
+    instance_type: mac_mini_m2
 
+    environment:
+      xcode: latest
+
+    scripts:
+      - name: Check Xcode project
+        script: |
+          echo "Checking Moonzer Student project..."
+          ls -la "$CM_BUILD_DIR/MoonzerStudent"
+          xcodebuild -list \
+            -project "$CM_BUILD_DIR/MoonzerStudent/MoonzerStudent.xcodeproj"
+
+      - name: Build iOS Simulator
+        script: |
+          xcodebuild build \
+            -project "$CM_BUILD_DIR/MoonzerStudent/MoonzerStudent.xcodeproj" \
+            -scheme "MoonzerStudent" \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$CM_BUILD_DIR/build/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
+
+    artifacts:
+      - build/DerivedData/Build/Products/Debug-iphonesimulator/*.app
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
